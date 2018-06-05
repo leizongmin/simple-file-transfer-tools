@@ -6,11 +6,11 @@ import crypto from "crypto";
 import fsExtra from "fs-extra";
 import commander from "commander";
 import logger from "./logger";
-import { REGEXP_IP, REGEXP_PORT, X_CONTENT_MD5 } from "./common";
+import { REGEXP_IP, REGEXP_PORT, formatIpListInput, X_CONTENT_MD5 } from "./common";
 
 commander
   .version(require("../package.json").version)
-  .option("-i, --ip <ip>", "允许的来源IP地址，多个地址通过逗号分隔", REGEXP_IP, "127.0.0.1")
+  .option("-i, --ip <ip>", "允许的来源IP地址，多个地址通过逗号分隔", formatIpListInput, "127.0.0.1")
   .option("-p, --port <port>", "监听的端口", REGEXP_PORT, "12345")
   .option("-h, --host <host>", "监听的地址", REGEXP_IP, "0.0.0.0")
   .option("-d, --dir <dir>", "文件根目录", ".")
