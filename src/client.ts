@@ -35,7 +35,7 @@ if (commander.file) {
 
 function parseServerAddress(str: string): { host: string; port: number; path: string } {
   const s = str.split(/\/|\:/);
-  return { host: s[0], port: Number(s[1]), path: `/${s[2]}` };
+  return { host: s[0], port: Number(s[1]), path: `/${s[2] || ""}` };
 }
 
 function uploads(list: Array<{ filepath: string; key: string }>) {

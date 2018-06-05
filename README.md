@@ -20,7 +20,7 @@ sftt-server --help
   Options:
 
     -V, --version      output the version number
-    -i, --ip <ip>      允许的来源IP地址 (default: 127.0.0.1)
+    -i, --ip <ip>      允许的来源IP地址，多个地址通过逗号分隔 (default: 127.0.0.1)
     -p, --port <port>  监听的端口 (default: 12345)
     -h, --host <host>  监听的地址 (default: 0.0.0.0)
     -d, --dir <dir>    文件根目录 (default: .)
