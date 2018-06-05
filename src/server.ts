@@ -6,7 +6,7 @@ import crypto from "crypto";
 import fsExtra from "fs-extra";
 import commander from "commander";
 import logger from "./logger";
-import { REGEXP_IP, REGEXP_PORT, formatIpListInput, X_CONTENT_MD5 } from "./common";
+import { REGEXP_IP, REGEXP_PORT, formatIpListInput, X_CONTENT_MD5, pickConfig } from "./common";
 
 commander
   .version(require("../package.json").version)
@@ -14,16 +14,18 @@ commander
   .option("-p, --port <port>", "监听的端口", REGEXP_PORT, "12345")
   .option("-h, --host <host>", "监听的地址", REGEXP_IP, "0.0.0.0")
   .option("-d, --dir <dir>", "文件根目录", ".")
+  .option("-c, --config <config_file>", "指定配置文件")
   .parse(process.argv);
 
-const port = Number(commander.port);
-const ipList = (commander.ip as string)
+const config: any = pickConfig(commander, ["ip", "port", "host", "dir"]);
+const port = Number(config.port);
+const ipList = (config.ip as string)
   .trim()
   .split(",")
   .map(v => v.trim())
   .filter(v => v);
-const host = commander.host.trim() as string;
-const dir = path.resolve(commander.dir.trim());
+const host = config.host.trim() as string;
+const dir = path.resolve(config.dir.trim());
 process.chdir(dir);
 logger.info("文件根目录：%s", dir);
 logger.info("允许的来源IP地址：%s", ipList.join(", "));

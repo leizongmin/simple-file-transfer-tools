@@ -5,25 +5,27 @@ import crypto from "crypto";
 import rd from "rd";
 import commander from "commander";
 import logger from "./logger";
-import { X_CONTENT_MD5 } from "./common";
+import { X_CONTENT_MD5, pickConfig } from "./common";
 
 commander
   .version(require("../package.json").version)
   .option("-f, --file <file>", "要上传的文件", "")
   .option("-d, --dir <dir>", "要上传的目录", "")
   .option("-s, --server <server>", "远程服务器地址（host:port/path）", "127.0.0.1:12345/data")
+  .option("-c, --config <config_file>", "指定配置文件")
   .parse(process.argv);
 
-const server = parseServerAddress(commander.server.trim());
-const file = path.resolve(commander.file.trim());
-const dir = path.resolve(commander.dir.trim());
-if (commander.file) logger.info("要上传的文件：%s", file);
-if (commander.dir) logger.info("要上传的目录：%s", dir);
+const config: any = pickConfig(commander, ["file", "dir", "server"]);
+const server = parseServerAddress(config.server.trim());
+const file = path.resolve(config.file.trim());
+const dir = path.resolve(config.dir.trim());
+if (config.file) logger.info("要上传的文件：%s", file);
+if (config.dir) logger.info("要上传的目录：%s", dir);
 logger.info("远程服务器地址：%s:%s %s", server.host, server.port, server.path);
 
-if (commander.file) {
+if (config.file) {
   uploads([{ filepath: file, key: path.basename(file) }]);
-} else if (commander.dir) {
+} else if (config.dir) {
   uploads(
     rd.readFileSync(dir).map(filepath => {
       return { filepath, key: filepath.slice(dir.length + 1).replace(/\\/g, "/") };

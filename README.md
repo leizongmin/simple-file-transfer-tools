@@ -24,6 +24,7 @@ sftt-server --help
     -p, --port <port>  监听的端口 (default: 12345)
     -h, --host <host>  监听的地址 (default: 0.0.0.0)
     -d, --dir <dir>    文件根目录 (default: .)
+    -c, --config <config_file>  指定配置文件
     -h, --help         output usage information
 ```
 
@@ -48,6 +49,7 @@ sftt-put --help
     -f, --file <file>      要上传的文件 (default: )
     -d, --dir <dir>        要上传的目录 (default: )
     -s, --server <server>  远程服务器地址（host:port/path） (default: 127.0.0.1:12345/data)
+    -c, --config <config_file>  指定配置文件
     -h, --help             output usage information
 ```
 
