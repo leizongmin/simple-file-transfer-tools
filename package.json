@@ -8,7 +8,7 @@
     "dist"
   ],
   "bin": {
-    "sftt-client": "./bin/sftt-client",
+    "sftt-put": "./bin/sftt-put",
     "sftt-server": "./bin/sftt-server"
   },
   "scripts": {

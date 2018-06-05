@@ -38,9 +38,9 @@ sftt-server --ip 192.168.1.2,127.0.0.1 --port 12345 --host 0.0.0.0 --dir /data
 使用方法：
 
 ```bash
-sftt-client --help
+sftt-put --help
 
-  Usage: sftt-client [options]
+  Usage: sftt-put [options]
 
   Options:
 
@@ -55,9 +55,9 @@ sftt-client --help
 
 ```bash
 # 上传文件
-sftt-client --server 127.0.0.1:12345/dir1 --file test.txt
+sftt-put --server 127.0.0.1:12345/dir1 --file test.txt
 # 上传整个目录下的所有文件
-sftt-client --server 127.0.0.1:12345/dir2 --dir data
+sftt-put --server 127.0.0.1:12345/dir2 --dir data
 ```
 
 ## 通过 PM2 启动服务器端
