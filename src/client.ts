@@ -26,7 +26,7 @@ if (commander.file) {
 } else if (commander.dir) {
   uploads(
     rd.readFileSync(dir).map(filepath => {
-      return { filepath, key: filepath.slice(dir.length + 1) };
+      return { filepath, key: filepath.slice(dir.length + 1).replace(/\\/g, "/") };
     }),
   );
 } else {
