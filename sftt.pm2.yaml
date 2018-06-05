@@ -1,0 +1,14 @@
+apps:
+  - name: sftt-server
+    script: /usr/local/bin/sftt-server
+    instances: 1
+    exec_mode: fork
+    args:
+      - "--ip"
+      - "127.0.0.1"
+      - "--port"
+      - "12345"
+      - "--host"
+      - "0.0.0.0"
+      - "--dir"
+      - "/Users/glen/work/tmp/test_20180605"

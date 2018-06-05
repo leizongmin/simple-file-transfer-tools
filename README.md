@@ -30,7 +30,7 @@ sftt-server --help
 示例：
 
 ```bash
-sftt-server -i 192.168.1.2,127.0.0.1 -p 12345 -h 0.0.0.0 -d /data
+sftt-server --ip 192.168.1.2,127.0.0.1 --port 12345 --host 0.0.0.0 --dir /data
 ```
 
 ## 客户端上传文件
@@ -55,9 +55,41 @@ sftt-client --help
 
 ```bash
 # 上传文件
-sftt-client -s 127.0.0.1:12345/dir1 -f test.txt
+sftt-client --server 127.0.0.1:12345/dir1 --file test.txt
 # 上传整个目录下的所有文件
-sftt-client -s 127.0.0.1:12345/dir2 -d data
+sftt-client --server 127.0.0.1:12345/dir2 --dir data
+```
+
+## 通过 PM2 启动服务器端
+
+新建配置文件 `sftt-server.pm2.yaml`：
+
+```yaml
+apps:
+  - name: sftt-server
+    script: /usr/local/bin/sftt-server
+    instances: 1
+    exec_mode: fork
+    args:
+      - "--ip"
+      - "127.0.0.1"
+      - "--port"
+      - "12345"
+      - "--host"
+      - "0.0.0.0"
+      - "--dir"
+      - "/data"
+```
+
+说明：
+
+* `script` 中的 `/usr/local/bin/sftt-server` 是 `sftt-server` 命令的绝对文件路径，可以通过执行 `which sftt-server` 获得
+* `args` 部分为相应的命令行参数
+
+然后，执行以下命令即可通过 PM2 启动：
+
+```bash
+pm2 start sftt-server.pm2.yaml
 ```
 
 ## License
