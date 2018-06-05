@@ -6,10 +6,7 @@ import crypto from "crypto";
 import fsExtra from "fs-extra";
 import commander from "commander";
 import logger from "./logger";
-
-const REGEXP_IP = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-const REGEXP_PORT = /^\d+$/;
-const X_CONTENT_MD5 = "x-content-md5";
+import { REGEXP_IP, REGEXP_PORT, X_CONTENT_MD5 } from "./common";
 
 commander
   .version(require("../package.json").version)
@@ -111,14 +108,18 @@ async function putFile(req: http.IncomingMessage, res: http.ServerResponse): Pro
     run(req, res, async function() {
       fileStream.end();
       const md5 = hashStream.digest("hex").toLowerCase();
-      if (req.headers[X_CONTENT_MD5] && String(req.headers[X_CONTENT_MD5]).toLowerCase() !== md5) {
-        res.writeHead(400);
-        res.end();
-        logger.warn("校验文件失败：%s != %s", md5, req.headers[X_CONTENT_MD5]);
-        fsExtra.unlink(tmpFile);
-        return;
+      let isVerify = false;
+      if (req.headers[X_CONTENT_MD5]) {
+        if (String(req.headers[X_CONTENT_MD5]).toLowerCase() !== md5) {
+          res.writeHead(400);
+          res.end();
+          logger.warn("校验文件失败：%s != %s", md5, req.headers[X_CONTENT_MD5]);
+          fsExtra.unlink(tmpFile);
+          return;
+        }
+        isVerify = true;
       }
-      logger.info("写入文件：%s（md5=%s）", filepath, md5);
+      logger.info("写入文件：%s（md5=%s, verify=%s）", filepath, md5, isVerify);
       await fsExtra.move(tmpFile, filepath, { overwrite: true });
       res.end();
     });
