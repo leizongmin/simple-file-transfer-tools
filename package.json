@@ -1,0 +1,42 @@
+{
+  "name": "@leizm/sftt",
+  "version": "1.0.0",
+  "description": "简单文件传输工具",
+  "main": "./dist/index.js",
+  "bin": {
+    "sftt-client": "./bin/sftt-client",
+    "sftt-server": "./bin/sftt-server"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leizongmin/simple-file-transfer-tools.git"
+  },
+  "keywords": [
+    "file",
+    "transfer",
+    "ftp",
+    "scp"
+  ],
+  "author": "Zongmin Lei <leizongmin@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/leizongmin/simple-file-transfer-tools/issues"
+  },
+  "homepage": "https://github.com/leizongmin/simple-file-transfer-tools#readme",
+  "devDependencies": {
+    "@types/node": "^10.3.1",
+    "ts-node": "^6.1.0",
+    "typescript": "^2.9.1"
+  },
+  "dependencies": {
+    "@types/commander": "^2.12.2",
+    "@types/fs-extra": "^5.0.2",
+    "@types/pino": "^4.16.0",
+    "commander": "^2.15.1",
+    "fs-extra": "^6.0.1",
+    "pino": "^4.17.3"
+  }
+}
