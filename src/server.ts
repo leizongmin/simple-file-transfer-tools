@@ -1,12 +1,15 @@
+import os from "os";
 import fs from "fs";
 import path from "path";
 import http from "http";
+import crypto from "crypto";
 import fsExtra from "fs-extra";
 import commander from "commander";
 import logger from "./logger";
 
 const REGEXP_IP = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 const REGEXP_PORT = /^\d+$/;
+const X_CONTENT_MD5 = "x-content-md5";
 
 commander
   .version(require("../package.json").version)
@@ -35,6 +38,7 @@ const server = http.createServer(function(req, res) {
     res.end();
     return;
   }
+  logger.info("处理来自%s的请求：%s %s", req.socket.remoteAddress, req.method, req.url);
   switch (req.method) {
     case "GET":
       run(req, res, getFile);
@@ -43,6 +47,7 @@ const server = http.createServer(function(req, res) {
       run(req, res, putFile);
       break;
     default:
+      logger.warn("不支持请求方法：%s", req.method);
       res.writeHead(405);
       res.end();
   }
@@ -54,11 +59,10 @@ server.on("error", err => {
   logger.fatal(err);
 });
 
-type HandleFunction = (req: http.IncomingMessage, res: http.ServerResponse) => Promise<void>;
+type HandleFunction = Function;
 
 function run(req: http.IncomingMessage, res: http.ServerResponse, handle: HandleFunction) {
-  logger.info("处理来自%s的请求：%s %s", req.socket.remoteAddress, req.method, req.url);
-  handle(req, res).catch(err => {
+  handle(req, res).catch((err: Error) => {
     logger.error("处理请求出错：%s %s", req.method, req.url, { err });
     if (!res.headersSent) {
       res.writeHead(500);
@@ -95,11 +99,29 @@ async function putFile(req: http.IncomingMessage, res: http.ServerResponse): Pro
     logger.warn("不允许访问文件：%s", filepath);
     return;
   }
-  logger.info("写入文件：%s", filepath);
   await fsExtra.ensureDir(path.dirname(filepath));
-  req.pipe(fs.createWriteStream(filepath)).on("close", () => {
-    res.writeHead(200);
-    res.end();
+  const tmpFile = path.resolve(os.tmpdir(), `${Date.now()}-${Math.random()}=${Math.random()}.tmp`);
+  const hashStream = crypto.createHash("md5");
+  const fileStream = fs.createWriteStream(tmpFile);
+  req.on("data", chunk => {
+    fileStream.write(chunk);
+    hashStream.update(chunk);
+  });
+  req.on("end", () => {
+    run(req, res, async function() {
+      fileStream.end();
+      const md5 = hashStream.digest("hex").toLowerCase();
+      if (req.headers[X_CONTENT_MD5] && String(req.headers[X_CONTENT_MD5]).toLowerCase() !== md5) {
+        res.writeHead(400);
+        res.end();
+        logger.warn("校验文件失败：%s != %s", md5, req.headers[X_CONTENT_MD5]);
+        fsExtra.unlink(tmpFile);
+        return;
+      }
+      logger.info("写入文件：%s（md5=%s）", filepath, md5);
+      await fsExtra.move(tmpFile, filepath, { overwrite: true });
+      res.end();
+    });
   });
 }
 
