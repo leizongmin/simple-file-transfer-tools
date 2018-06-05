@@ -1,6 +1,6 @@
 {
   "name": "@leizm/sftt",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "简单文件传输工具",
   "main": "./dist/index.js",
   "files": [
