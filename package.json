@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "简单文件传输工具",
   "main": "./dist/index.js",
+  "files": [
+    "bin",
+    "dist"
+  ],
   "bin": {
     "sftt-client": "./bin/sftt-client",
     "sftt-server": "./bin/sftt-server"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepublish": "rm -rf dist && tsc"
   },
   "repository": {
     "type": "git",
