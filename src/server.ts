@@ -5,10 +5,9 @@ import http from "http";
 import crypto from "crypto";
 import fsExtra from "fs-extra";
 import commander from "commander";
-import archiver from "archiver";
-import rd from "rd";
 import logger from "./logger";
 import { REGEXP_IP, REGEXP_PORT, formatIpListInput, X_CONTENT_MD5, pickConfig } from "./common";
+import { compressDir } from "./archiver";
 
 commander
   .version(require("../package.json").version)
@@ -94,24 +93,7 @@ async function getFile(req: http.IncomingMessage, res: http.ServerResponse): Pro
     fs.createReadStream(filepath).pipe(res);
   } else if (stats.isDirectory()) {
     logger.info("读取目录：%s", filepath);
-    rd.readFile(filepath, (err, list) => {
-      if (err) {
-        logger.error(err);
-        res.writeHead(500);
-        res.end();
-        return;
-      }
-      const archive = archiver("zip", { zlib: { level: 9 } });
-      archive.on("warning", err => logger.warn("压缩文件警告", { err }));
-      archive.on("error", err => logger.warn("压缩文件错误", { err }));
-      archive.pipe(res);
-      if (list) {
-        list.forEach(f => {
-          archive.append(fs.createReadStream(f), { name: f.slice(filepath.length + 1).replace(/\\/g, "/") });
-        });
-      }
-      archive.finalize();
-    });
+    await compressDir(filepath, res);
   } else {
     logger.info("无法识别的文件类型：%j", stats);
     res.writeHead(500);

@@ -1,4 +1,5 @@
 import url from "url";
+import rd from "rd";
 import fsExtra from "fs-extra";
 import logger from "./logger";
 
@@ -43,6 +44,15 @@ export function pickConfig(commander: any, keys: string[]) {
 export function parseServerAddress(str: string): { host: string; port: number; path: string } {
   const info = url.parse(`sftt://${str}`);
   return { host: info.hostname!, port: Number(info.port || DEFAULT_PORT), path: info.pathname! };
+}
+
+export function getAllFilesFromDir(dir: string): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    rd.readFile(dir, (err, list) => {
+      if (err) return reject(err);
+      resolve(list);
+    });
+  });
 }
 
 process.on("uncaughtException", err => {
