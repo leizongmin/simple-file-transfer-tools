@@ -1,0 +1,8 @@
+apps:
+  - name: sftt-server
+    script: /usr/local/bin/sftt-server
+    instances: 1
+    exec_mode: fork
+    args:
+      - "--config"
+      - "server.config.json"

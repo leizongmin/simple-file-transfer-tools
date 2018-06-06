@@ -64,7 +64,18 @@ sftt-put --server 127.0.0.1:12345/dir2 --dir data
 
 ## 通过 PM2 启动服务器端
 
-新建配置文件 `sftt-server.pm2.yaml`：
+新建 sftt-server 配置文件 `server.config.json`：
+
+```json
+{
+  "ip": "127.0.0.1",
+  "port": 12345,
+  "host": "0.0.0.0",
+  "dir": "./data"
+}
+```
+
+新建 PM2 配置文件 `sftt-server.pm2.yaml`：
 
 ```yaml
 apps:
@@ -73,14 +84,8 @@ apps:
     instances: 1
     exec_mode: fork
     args:
-      - "--ip"
-      - "127.0.0.1"
-      - "--port"
-      - "12345"
-      - "--host"
-      - "0.0.0.0"
-      - "--dir"
-      - "/data"
+      - "--config"
+      - "server.config.json"
 ```
 
 说明：
