@@ -5,13 +5,13 @@ import crypto from "crypto";
 import rd from "rd";
 import commander from "commander";
 import logger from "./logger";
-import { X_CONTENT_MD5, pickConfig } from "./common";
+import { X_CONTENT_MD5, pickConfig, parseServerAddress, DEFAULT_PORT } from "./common";
 
 commander
   .version(require("../package.json").version)
   .option("-f, --file <file>", "要上传的文件", "")
   .option("-d, --dir <dir>", "要上传的目录", "")
-  .option("-s, --server <server>", "远程服务器地址（host:port/path）", "127.0.0.1:12345/data")
+  .option("-s, --server <server>", "远程服务器地址（host:port/path）", `127.0.0.1:${DEFAULT_PORT}/data`)
   .option("-c, --config <config_file>", "指定配置文件")
   .parse(process.argv);
 
@@ -33,11 +33,6 @@ if (config.file) {
   );
 } else {
   logger.warn("没有指定上传文件");
-}
-
-function parseServerAddress(str: string): { host: string; port: number; path: string } {
-  const s = str.split(/\/|\:/);
-  return { host: s[0], port: Number(s[1]), path: `/${s[2] || ""}` };
 }
 
 function uploads(list: Array<{ filepath: string; key: string }>) {

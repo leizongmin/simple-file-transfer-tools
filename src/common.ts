@@ -1,8 +1,11 @@
+import url from "url";
 import fsExtra from "fs-extra";
 import logger from "./logger";
 
 export const REGEXP_IP = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 export const REGEXP_PORT = /^\d+$/;
+
+export const DEFAULT_PORT = 12345;
 
 export function formatIpListInput(input: string, defaultValue: string) {
   return (
@@ -35,6 +38,11 @@ export function pickConfig(commander: any, keys: string[]) {
     });
   }
   return ret;
+}
+
+export function parseServerAddress(str: string): { host: string; port: number; path: string } {
+  const info = url.parse(`sftt://${str}`);
+  return { host: info.hostname!, port: Number(info.port || DEFAULT_PORT), path: info.pathname! };
 }
 
 process.on("uncaughtException", err => {
