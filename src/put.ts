@@ -64,7 +64,7 @@ function uploadFile(md5: string, key: string, filepath: string): Promise<void> {
         method: "PUT",
         hostname: server.host,
         port: server.port,
-        path: `${server.path}/${key}`,
+        path: `${server.path}/${encodeURIComponent(key)}`,
         headers: {
           [X_CONTENT_MD5]: md5,
           "content-type": "application/octet-stream",

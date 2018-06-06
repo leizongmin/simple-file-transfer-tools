@@ -140,7 +140,7 @@ async function putFile(req: http.IncomingMessage, res: http.ServerResponse): Pro
 }
 
 function resolvePath(url: string): { success: boolean; filepath: string } {
-  const filepath = path.resolve(dir, url.slice(1));
+  const filepath =  decodeURIComponent(path.resolve(dir, url.slice(1)));
   if (filepath.slice(0, dir.length + 1) === `${dir}${path.sep}`) {
     return { success: true, filepath };
   }
