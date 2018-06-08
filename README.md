@@ -8,7 +8,9 @@
 npm i -g @leizm/sftt
 ```
 
-## 启动服务器端
+## 命令行工具使用
+
+### 启动服务器端
 
 使用方法：
 
@@ -34,7 +36,7 @@ sftt-server --help
 sftt-server --ip 192.168.1.2,127.0.0.1 --port 12345 --host 0.0.0.0 --dir /data
 ```
 
-## 客户端上传文件
+### 客户端上传文件
 
 使用方法：
 
@@ -62,7 +64,7 @@ sftt-put --server 127.0.0.1:12345/dir1 --file test.txt
 sftt-put --server 127.0.0.1:12345/dir2 --dir data
 ```
 
-## 通过 PM2 启动服务器端
+### 通过 PM2 启动服务器端
 
 新建 sftt-server 配置文件 `server.config.json`：
 
@@ -97,6 +99,34 @@ apps:
 
 ```bash
 pm2 start sftt-server.pm2.yaml
+```
+
+## 作为模块嵌入
+
+### 上传文件
+
+```typescript
+import { putFile, putDir } from "@leizm/sftt";
+
+async function main() {
+
+  // 上传指定文件到服务器
+  const {key, md5} = await putFile({
+    server: '127.0.0.1',
+    port: 12345,
+    path: '/',
+  }, '/path/to/local/file');
+
+  // 上传指定目录下的多有文件到服务器
+  const ret = await putDir({
+    server: '127.0.0.1',
+    port: 12345,
+    path: '/',
+  }, '/path/to/local/dir', (type, data) => {
+    console.log('进度', type, data);
+  });
+
+}
 ```
 
 ## License

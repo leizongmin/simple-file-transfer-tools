@@ -1,7 +1,10 @@
 import url from "url";
+import fs from "fs";
+import crypto from "crypto";
 import rd from "rd";
 import fsExtra from "fs-extra";
-import logger from "./logger";
+
+export const VERSION = require("../../package.json").version;
 
 export const REGEXP_IP = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
 export const REGEXP_PORT = /^\d+$/;
@@ -29,7 +32,7 @@ export function pickConfig(commander: any, keys: string[]) {
   keys.forEach(k => (ret[k] = commander[k]));
   if (commander.config) {
     if (!fsExtra.existsSync(commander.config)) {
-      return logger.fatal(`无法读取配置文件：${commander.config}`);
+      throw new Error(`无法读取配置文件：${commander.config}`);
     }
     const c = fsExtra.readJsonSync(commander.config);
     keys.forEach(k => {
@@ -41,7 +44,13 @@ export function pickConfig(commander: any, keys: string[]) {
   return ret;
 }
 
-export function parseServerAddress(str: string): { host: string; port: number; path: string } {
+export interface IServerAddress {
+  host: string;
+  port: number;
+  path: string;
+}
+
+export function parseServerAddress(str: string): IServerAddress {
   const info = url.parse(`sftt://${str}`);
   return { host: info.hostname!, port: Number(info.port || DEFAULT_PORT), path: info.pathname! };
 }
@@ -55,9 +64,13 @@ export function getAllFilesFromDir(dir: string): Promise<string[]> {
   });
 }
 
-process.on("uncaughtException", err => {
-  logger.fatal("uncaughtException: %s", err.stack);
-});
-process.on("unhandledRejection", err => {
-  logger.fatal("unhandledRejection: %s", err.stack);
-});
+export function getFileMd5(filepath: string): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const hash = crypto.createHash("md5");
+    const stream = fs.createReadStream(filepath);
+    stream.on("data", chunk => hash.update(chunk));
+    stream.on("end", () => {
+      resolve(hash.digest("hex").toLocaleLowerCase());
+    });
+  });
+}
