@@ -23,13 +23,9 @@ logger.info("远程服务器地址：%s:%s %s", server.host, server.port, server
 async function main() {
   if (config.file) {
     const file = path.resolve(config.file);
-    try {
-      logger.info("[1/1] 正在上传文件：%s", file);
-      const { key, md5 } = await putFile(server, file);
-      logger.info("[1/1] 上传文件成功文件：%s（key=%s, md5=%s）", file, key, md5);
-    } catch (err) {
-      logger.error("[1/1] 上传文件失败：%s", file, { err });
-    }
+    logger.info("[1/1] 正在上传文件：%s", file);
+    const { key, md5 } = await putFile(server, file);
+    logger.info("[1/1] 上传文件成功文件：%s（key=%s, md5=%s）", file, key, md5);
   } else if (config.dir) {
     await putDir(server, path.resolve(config.dir), (type, data) => {
       if (type === "upload") {

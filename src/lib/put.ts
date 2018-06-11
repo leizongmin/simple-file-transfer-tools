@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import http from "http";
 import rd from "rd/promises";
+import fsExtra from "fs-extra";
 import { X_CONTENT_MD5, getFileMd5, IServerAddress } from "./common";
 
 export interface IPutResult {
@@ -23,6 +24,8 @@ export type IOnProgress = (
 
 export async function putDir(server: IServerAddress, dir: string, onProgress?: IOnProgress): Promise<IPutResult[]> {
   dir = path.resolve(dir);
+  const stats = await fsExtra.stat(dir);
+  if (!stats.isDirectory()) throw new Error(`不是一个文件夹：${dir}`);
   const files = await rd.readFile(dir);
   const result: IPutResult[] = [];
   let finishCount = 0;
@@ -43,6 +46,8 @@ export async function putDir(server: IServerAddress, dir: string, onProgress?: I
 }
 
 export async function putFile(server: IServerAddress, filepath: string): Promise<IPutResult> {
+  const stats = await fsExtra.stat(filepath);
+  if (!stats.isFile()) throw new Error(`不是一个文件：${filepath}`);
   const key = path.basename(filepath);
   const md5 = await getFileMd5(filepath);
   await putFileToServer(server, key, md5, filepath);
