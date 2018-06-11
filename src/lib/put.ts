@@ -68,6 +68,7 @@ function putFileToServer(server: IServerAddress, key: string, md5: string, filep
         },
       },
       res => {
+        res.on("error", err => reject(err));
         if (res.statusCode === 200) {
           resolve();
         } else {
@@ -76,5 +77,6 @@ function putFileToServer(server: IServerAddress, key: string, md5: string, filep
       },
     );
     fs.createReadStream(filepath).pipe(req);
+    req.on("error", err => reject(err));
   });
 }

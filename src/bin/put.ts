@@ -27,8 +27,11 @@ async function main() {
     const { key, md5 } = await putFile(server, file);
     logger.info("[1/1] 上传文件成功文件：%s（key=%s, md5=%s）", file, key, md5);
   } else if (config.dir) {
+    let total = 0;
+    let failTotal = 0;
     await putDir(server, path.resolve(config.dir), (type, data) => {
       if (type === "upload") {
+        total++;
         logger.info("[%s/%s] 正在上传文件：%s", data.finishCount, data.total, data.file);
       } else if (type === "success") {
         logger.info(
@@ -40,7 +43,13 @@ async function main() {
           data.md5,
         );
       } else {
+        failTotal++;
         logger.error("[%s/%s] 上传文件失败：%s", data.finishCount, data.total, data.file, { err: data.err });
+      }
+      if (failTotal > 0) {
+        logger.error("共上传 %s 个文件，其中 %s 上传失败", total, failTotal);
+      } else {
+        logger.info("共上传 %s 个文件，全部成功", total);
       }
     });
   } else {
