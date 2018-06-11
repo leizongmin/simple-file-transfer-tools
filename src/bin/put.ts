@@ -35,7 +35,7 @@ async function main() {
         logger.info("[%s/%s] 正在上传文件：%s", data.finishCount, data.total, data.file);
       } else if (type === "success") {
         logger.info(
-          "[%s/%s] 上传文件成功文件：%s（key=%s, md5=%s）",
+          "[%s/%s] 上传文件成功：%s（key=%s, md5=%s）",
           data.finishCount,
           data.total,
           data.file,
@@ -46,12 +46,12 @@ async function main() {
         failTotal++;
         logger.error("[%s/%s] 上传文件失败：%s", data.finishCount, data.total, data.file, { err: data.err });
       }
-      if (failTotal > 0) {
-        logger.error("共上传 %s 个文件，其中 %s 上传失败", total, failTotal);
-      } else {
-        logger.info("共上传 %s 个文件，全部成功", total);
-      }
     });
+    if (failTotal > 0) {
+      logger.error("共上传 %s 个文件，其中 %s 上传失败", total, failTotal);
+    } else {
+      logger.info("共上传 %s 个文件，全部成功", total);
+    }
   } else {
     logger.warn("没有指定上传文件");
   }

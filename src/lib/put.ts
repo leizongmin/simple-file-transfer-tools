@@ -35,10 +35,10 @@ export async function putDir(server: IServerAddress, dir: string, onProgress?: I
       const key = file.slice(dir.length + 1).replace(/\\/g, "/");
       const md5 = await getFileMd5(file);
       await putFileToServer(server, key, md5, file);
-      if (onProgress) onProgress("success", { total: files.length, finishCount, file, key, md5 });
+      if (onProgress) onProgress("success", { total: files.length, finishCount: finishCount + 1, file, key, md5 });
       result.push({ key, md5 });
     } catch (err) {
-      if (onProgress) onProgress("fail", { total: files.length, finishCount, file, err });
+      if (onProgress) onProgress("fail", { total: files.length, finishCount: finishCount + 1, file, err });
     }
     finishCount++;
   }
