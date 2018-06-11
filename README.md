@@ -112,14 +112,14 @@ async function main() {
 
   // 上传指定文件到服务器
   const {key, md5} = await putFile({
-    server: '127.0.0.1',
+    host: '127.0.0.1',
     port: 12345,
     path: '/',
   }, '/path/to/local/file');
 
   // 上传指定目录下的多有文件到服务器
   const ret = await putDir({
-    server: '127.0.0.1',
+    host: '127.0.0.1',
     port: 12345,
     path: '/',
   }, '/path/to/local/dir', (type, data) => {
