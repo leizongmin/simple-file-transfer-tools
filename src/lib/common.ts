@@ -10,6 +10,7 @@ export const REGEXP_IP = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:2
 export const REGEXP_PORT = /^\d+$/;
 
 export const DEFAULT_PORT = 12345;
+export const DEFAULT_TIMEOUT = 20000;
 
 export function formatIpListInput(input: string, defaultValue: string) {
   return (

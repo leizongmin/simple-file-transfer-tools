@@ -22,7 +22,16 @@ export type IOnProgress = (
   },
 ) => void;
 
-export async function putDir(server: IServerAddress, dir: string, onProgress?: IOnProgress): Promise<IPutResult[]> {
+export interface IPutOptions {
+  timeout?: number;
+}
+
+export async function putDir(
+  server: IServerAddress,
+  dir: string,
+  onProgress?: IOnProgress,
+  options?: IPutOptions,
+): Promise<IPutResult[]> {
   dir = path.resolve(dir);
   const stats = await fsExtra.stat(dir);
   if (!stats.isDirectory()) throw new Error(`不是一个文件夹：${dir}`);
@@ -34,7 +43,7 @@ export async function putDir(server: IServerAddress, dir: string, onProgress?: I
       if (onProgress) onProgress("upload", { total: files.length, finishCount, file });
       const key = file.slice(dir.length + 1).replace(/\\/g, "/");
       const md5 = await getFileMd5(file);
-      await putFileToServer(server, key, md5, file);
+      await putFileToServer(server, key, md5, file, options);
       if (onProgress) onProgress("success", { total: files.length, finishCount: finishCount + 1, file, key, md5 });
       result.push({ key, md5 });
     } catch (err) {
@@ -45,17 +54,24 @@ export async function putDir(server: IServerAddress, dir: string, onProgress?: I
   return result;
 }
 
-export async function putFile(server: IServerAddress, filepath: string): Promise<IPutResult> {
+export async function putFile(server: IServerAddress, filepath: string, options?: IPutOptions): Promise<IPutResult> {
   const stats = await fsExtra.stat(filepath);
   if (!stats.isFile()) throw new Error(`不是一个文件：${filepath}`);
   const key = path.basename(filepath);
   const md5 = await getFileMd5(filepath);
-  await putFileToServer(server, key, md5, filepath);
+  await putFileToServer(server, key, md5, filepath, options);
   return { key, md5 };
 }
 
-function putFileToServer(server: IServerAddress, key: string, md5: string, filepath: string): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
+function putFileToServer(
+  server: IServerAddress,
+  key: string,
+  md5: string,
+  filepath: string,
+  options: IPutOptions = {},
+): Promise<http.IncomingMessage> {
+  return new Promise((resolve, reject) => {
+    let tid: number;
     const req = http.request(
       {
         method: "PUT",
@@ -66,11 +82,12 @@ function putFileToServer(server: IServerAddress, key: string, md5: string, filep
           [X_CONTENT_MD5]: md5,
           "content-type": "application/octet-stream",
         },
+        timeout: options.timeout,
       },
       res => {
-        res.on("error", err => reject(err));
+        clearTimeout(tid);
         if (res.statusCode === 200) {
-          resolve();
+          resolve(res);
         } else {
           reject(`status=${res.statusCode}`);
         }
@@ -78,5 +95,13 @@ function putFileToServer(server: IServerAddress, key: string, md5: string, filep
     );
     fs.createReadStream(filepath).pipe(req);
     req.on("error", err => reject(err));
+
+    if (options.timeout! > 0) {
+      tid = setTimeout(() => {
+        const err = new Error(`上传文件超时！（${options!.timeout}ms）`);
+        reject(err);
+        req.destroy(err);
+      }, options.timeout);
+    }
   });
 }
