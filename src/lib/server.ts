@@ -109,7 +109,7 @@ export class Server {
             res.writeHead(400);
             res.end();
             logger.warn("校验文件失败：%s != %s", md5, req.headers[X_CONTENT_MD5]);
-            fsExtra.unlink(tmpFile);
+            await fsExtra.unlink(tmpFile);
             return;
           }
           isVerify = true;
