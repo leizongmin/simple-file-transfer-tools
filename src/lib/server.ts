@@ -99,37 +99,44 @@ export class Server {
       fileStream.write(chunk);
       hashStream.update(chunk);
     });
-    req.on("end", () => {
-      run(req, res, async function() {
-        fileStream.end();
-        const md5 = hashStream.digest("hex").toLowerCase();
-        let isVerify = false;
-        if (req.headers[X_CONTENT_MD5]) {
-          if (String(req.headers[X_CONTENT_MD5]).toLowerCase() !== md5) {
-            res.writeHead(400);
-            res.end();
-            logger.warn("校验文件失败：%s != %s", md5, req.headers[X_CONTENT_MD5]);
-            await fsExtra.unlink(tmpFile);
-            return;
+    req.on("end", async () => {
+      fileStream.end();
+      fileStream.on("close", () => {
+        run(req, res, async function() {
+          const md5 = hashStream.digest("hex").toLowerCase();
+          let isVerify = false;
+          if (req.headers[X_CONTENT_MD5]) {
+            if (String(req.headers[X_CONTENT_MD5]).toLowerCase() !== md5) {
+              res.writeHead(400);
+              res.end();
+              logger.warn("校验文件失败：%s != %s", md5, req.headers[X_CONTENT_MD5]);
+              await fsExtra.unlink(tmpFile);
+              return;
+            }
+            isVerify = true;
           }
-          isVerify = true;
-        }
-        logger.info("写入文件：%s（md5=%s, verify=%s）", filepath, md5, isVerify);
-        await fsExtra.move(tmpFile, filepath, { overwrite: true });
-        res.end();
+          logger.info("写入文件：%s（md5=%s, verify=%s）", filepath, md5, isVerify);
+          await fsExtra.move(tmpFile, filepath, { overwrite: true });
+          res.end();
+        });
       });
     });
+    req.on("error", err => responseError(req, res, err));
+    fileStream.on("error", err => responseError(req, res, err));
+    hashStream.on("error", err => responseError(req, res, err));
   }
 }
 
 function run(req: http.IncomingMessage, res: http.ServerResponse, handle: Function) {
-  handle(req, res).catch((err: Error) => {
-    logger.error("处理请求出错：%s %s", req.method, req.url, { err });
-    if (!res.headersSent) {
-      res.writeHead(500);
-      res.end(err.stack);
-    }
-  });
+  handle(req, res).catch((err: Error) => responseError(req, res, err));
+}
+
+function responseError(req: http.IncomingMessage, res: http.ServerResponse, err: Error) {
+  logger.error("处理请求出错：%s %s", req.method, req.url, { err });
+  if (!res.headersSent) {
+    res.writeHead(500);
+    res.end(err.stack);
+  }
 }
 
 function resolvePath(dir: string, url: string): { success: boolean; filepath: string } {
