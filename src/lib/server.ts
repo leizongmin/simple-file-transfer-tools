@@ -92,7 +92,7 @@ export class Server {
       return;
     }
     await fsExtra.ensureDir(path.dirname(filepath));
-    const tmpFile = path.resolve(os.tmpdir(), `${Date.now()}-${Math.random()}=${Math.random()}.tmp`);
+    const tmpFile = path.resolve(os.tmpdir(), `${Date.now()}-${Math.random()}-${Math.random()}.tmp`);
     const hashStream = crypto.createHash("md5");
     const fileStream = fs.createWriteStream(tmpFile);
     req.on("data", chunk => {
