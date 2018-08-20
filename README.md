@@ -62,6 +62,8 @@ sftt-put --help
 sftt-put --server 127.0.0.1:12345/dir1 --file test.txt
 # 上传整个目录下的所有文件
 sftt-put --server 127.0.0.1:12345/dir2 --dir data
+# 使用token权限验证
+sftt-put --server token@127.0.0.1:12345/dir1 --file test.txt
 ```
 
 ### 通过 PM2 启动服务器端
