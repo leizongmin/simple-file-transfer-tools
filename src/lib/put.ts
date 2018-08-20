@@ -77,7 +77,7 @@ function putFileToServer(
         method: "PUT",
         hostname: server.host,
         port: server.port,
-        path: `${server.path}/${encodeURIComponent(key)}`,
+        path: path.join(server.path, encodeURIComponent(key)),
         headers: {
           [X_MODULE]: MODULE_TYPE_FILE,
           [X_TOKEN]: "",
