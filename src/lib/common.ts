@@ -52,11 +52,17 @@ export interface IServerAddress {
   host: string;
   port: number;
   path: string;
+  auth: string;
 }
 
 export function parseServerAddress(str: string): IServerAddress {
   const info = url.parse(`sftt://${str}`);
-  return { host: info.hostname!, port: Number(info.port || DEFAULT_PORT), path: info.pathname! };
+  return {
+    host: info.hostname!,
+    port: Number(info.port || DEFAULT_PORT),
+    path: info.pathname!,
+    auth: info.auth || "",
+  };
 }
 
 export function getAllFilesFromDir(dir: string): Promise<string[]> {

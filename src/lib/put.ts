@@ -80,7 +80,7 @@ function putFileToServer(
         path: path.join(server.path, encodeURIComponent(key)),
         headers: {
           [X_MODULE]: MODULE_TYPE_FILE,
-          [X_TOKEN]: "",
+          [X_TOKEN]: server.auth,
           [X_CONTENT_MD5]: md5,
           "content-type": "application/octet-stream",
         },
