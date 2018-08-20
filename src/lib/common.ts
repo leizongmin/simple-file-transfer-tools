@@ -27,6 +27,9 @@ export function formatIpListInput(input: string, defaultValue: string) {
 }
 
 export const X_CONTENT_MD5 = "x-content-md5";
+export const X_MODULE = "x-module";
+export const MODULE_TYPE_FILE = "file";
+export const X_TOKEN = "x-token";
 
 export function pickConfig(commander: any, keys: string[]) {
   const ret: any = {};

@@ -3,7 +3,7 @@ import path from "path";
 import http from "http";
 import rd from "rd/promises";
 import fsExtra from "fs-extra";
-import { X_CONTENT_MD5, getFileMd5, IServerAddress } from "./common";
+import { X_MODULE, X_TOKEN, MODULE_TYPE_FILE, X_CONTENT_MD5, getFileMd5, IServerAddress } from "./common";
 
 export interface IPutResult {
   key: string;
@@ -79,6 +79,8 @@ function putFileToServer(
         port: server.port,
         path: `${server.path}/${encodeURIComponent(key)}`,
         headers: {
+          [X_MODULE]: MODULE_TYPE_FILE,
+          [X_TOKEN]: "",
           [X_CONTENT_MD5]: md5,
           "content-type": "application/octet-stream",
         },
